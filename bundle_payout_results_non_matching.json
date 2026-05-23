@@ -1,0 +1,37 @@
+[
+  {
+    "age": 35,
+    "gender": "Male",
+    "codes_completed": "CPT12847, CPT58923",
+    "bundle": "CPT12847, CPT58923, CPT50062",
+    "payout": 0.0
+  },
+  {
+    "age": 42,
+    "gender": "Female",
+    "codes_completed": "CPT34015, CPT67402",
+    "bundle": "CPT34015, CPT67402, CPT29381, CPT91547",
+    "payout": 0.0
+  },
+  {
+    "age": 28,
+    "gender": "Male",
+    "codes_completed": "CPT91547, CPT56374",
+    "bundle": "CPT91547, CPT56374, CPT38729, CPT72918, CPT11403",
+    "payout": 0.0
+  },
+  {
+    "age": 55,
+    "gender": "Female",
+    "codes_completed": "CPT49675, CPT84256, CPT22534",
+    "bundle": "CPT11403, CPT49675, CPT84256",
+    "payout": 0.0
+  },
+  {
+    "age": 39,
+    "gender": "Male",
+    "codes_completed": "CPT22534, CPT65789, CPT30214",
+    "bundle": "CPT22534, CPT65789, CPT30214, CPT78102, CPT14856, CPT53421",
+    "payout": 0.0
+  }
+]

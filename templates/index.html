@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Payout Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='MedEng_Hack_Hospital.png') }}" alt="MedEng Hack Hospital Logo" class="logo">
+                </div>
+                <div class="header-text">
+                    <h1>💰 Patient Payout Dashboard</h1>
+                    <p class="subtitle">View detailed payout information for medical procedures</p>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="single-patient">Single Patient</button>
+            <button class="tab-button" data-tab="all-patients">All Patients</button>
+            <button class="tab-button" data-tab="statistics">Statistics</button>
+            <button class="tab-button" data-tab="marketplace">Marketplace</button>
+        </nav>
+
+        <!-- Single Patient Tab -->
+        <div id="single-patient" class="tab-content active">
+            <div class="card">
+                <h2>Patient Payout Lookup</h2>
+                <div class="search-section">
+                    <label for="patient-id">Patient ID:</label>
+                    <input 
+                        type="number" 
+                        id="patient-id" 
+                        placeholder="Enter patient ID (1-{{ total_patients }})" 
+                        min="1" 
+                        max="{{ total_patients }}"
+                    >
+                    <button onclick="searchPatient()" class="btn btn-primary">Search</button>
+                </div>
+
+                <div id="patient-result" class="result-container hidden">
+                    <div class="patient-card">
+                        <div class="patient-header">
+                            <h3>Patient #<span id="result-patient-id"></span></h3>
+                            <div class="payout-badge">
+                                <span class="payout-label">Payout</span>
+                                <span class="payout-amount" id="result-payout">0 tokens</span>
+                            </div>
+                        </div>
+
+                        <div class="patient-details">
+                            <div class="detail-row">
+                                <label>Age:</label>
+                                <span id="result-age">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Gender:</label>
+                                <span id="result-gender">-</span>
+                            </div>
+                        </div>
+
+                        <div class="bundle-section">
+                            <h3>Bundle Verification</h3>
+                            <div class="bundle-info">
+                                <div class="bundle-label">Original Bundle:</div>
+                                <div id="result-bundle" class="codes-list">-</div>
+                            </div>
+                            <div class="bundle-info">
+                                <div class="bundle-label">Codes Completed:</div>
+                                <div id="result-codes-completed" class="codes-list">-</div>
+                            </div>
+                        </div>
+
+                        <div class="bundle-grid-section">
+                            <h4>Bundle Code Verification</h4>
+                            <div id="bundle-verification-grid" class="bundle-verification-grid">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                            <div id="bundle-match-status" class="bundle-match-status">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-message" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- All Patients Tab -->
+        <div id="all-patients" class="tab-content">
+            <div class="card">
+                <h2>All Patients</h2>
+                <button onclick="loadAllPatients()" class="btn btn-secondary">Load All Patients</button>
+
+                <div id="patients-list" class="patients-table hidden">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Payout Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patients-tbody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="patients-error" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div id="statistics" class="tab-content">
+            <div class="card">
+                <h2>Payout Statistics</h2>
+                <button onclick="loadStatistics()" class="btn btn-secondary">Load Statistics</button>
+
+                <div id="stats-container" class="stats-grid hidden">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Records</div>
+                        <div class="stat-value" id="stat-total-records">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Payout</div>
+                        <div class="stat-value currency" id="stat-total-payout">$0.00</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Average Payout</div>
+                        <div class="stat-value currency" id="stat-average-payout">$0.00</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Minimum Payout</div>
+                        <div class="stat-value currency" id="stat-min-payout">$0.00</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Maximum Payout</div>
+                        <div class="stat-value currency" id="stat-max-payout">$0.00</div>
+                    </div>
+                </div>
+
+                <div id="stats-error" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- Marketplace Tab -->
+        <div id="marketplace" class="tab-content">
+            <div class="card">
+                <h2>🏪 Wellness Marketplace</h2>
+                <p class="subtitle-text">Select wellness activities to enhance your health and receive exclusive coupon codes</p>
+
+                <div class="marketplace-section">
+                    <div class="marketplace-header">
+                        <h3>Step 1: Select a Patient</h3>
+                        <div class="marketplace-input-group">
+                            <input 
+                                type="number" 
+                                id="marketplace-patient-id" 
+                                placeholder="Enter patient ID" 
+                                min="1" 
+                                max="{{ total_patients }}"
+                            >
+                            <button onclick="loadMarketplaceActivities()" class="btn btn-secondary">Load Patient</button>
+                        </div>
+                    </div>
+
+                    <div id="marketplace-activities" class="marketplace-hidden">
+                        <h3>Step 2: Choose a Wellness Activity</h3>
+                        <div id="activities-grid" class="activities-grid">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div id="marketplace-result" class="marketplace-result">
+                        <h3>✅ Coupon Successfully Generated!</h3>
+                        <div class="coupon-card">
+                            <div class="coupon-header">
+                                <div class="coupon-activity">
+                                    <span class="activity-icon" id="coupon-icon">🎉</span>
+                                    <div>
+                                        <div class="coupon-activity-name" id="coupon-activity-name">Activity Name</div>
+                                        <div class="coupon-description">For Patient #<span id="coupon-patient-id">-</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="coupon-details">
+                                <div class="coupon-row">
+                                    <label>Coupon Code:</label>
+                                    <div class="coupon-code-display">
+                                        <span id="coupon-code-value" class="coupon-code">ABC-123456</span>
+                                        <button onclick="copyCouponCode()" class="btn-copy">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="coupon-row">
+                                    <label>Discount Amount:</label>
+                                    <span id="coupon-discount">-</span>
+                                </div>
+                                <div class="coupon-row">
+                                    <label>Original Payout:</label>
+                                    <span id="coupon-original-payout">$0.00</span>
+                                </div>
+                                <div class="coupon-row highlight">
+                                    <label>New Payout:</label>
+                                    <span id="coupon-new-payout" class="new-payout">$0.00</span>
+                                </div>
+                                <div class="coupon-row">
+                                    <label>Expires:</label>
+                                    <span id="coupon-expires">-</span>
+                                </div>
+                            </div>
+
+                            <button onclick="resetMarketplace()" class="btn btn-secondary">Select Another Activity</button>
+                        </div>
+                    </div>
+
+                    <div id="marketplace-error" class="error-message hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
